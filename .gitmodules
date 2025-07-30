@@ -1,0 +1,6 @@
+[submodule "core/validation_tools/PentestAgent"]
+	path = core/validation_tools/PentestAgent
+	url = https://github.com/GH05TCREW/PentestAgent.git
+[submodule "core/validation_tools/cai"]
+	path = core/validation_tools/cai
+	url = https://github.com/aliasrobotics/cai.git

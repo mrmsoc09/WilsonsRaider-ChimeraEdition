@@ -1,0 +1,16 @@
+hvac
+psycopg2-binary
+pymongo
+requests
+dotenv
+bandit
+pytest
+flake8
+python-telegram-bot
+matrix-nio
+crewai
+fastapi
+uvicorn
+
+rich
+sqlalchemy

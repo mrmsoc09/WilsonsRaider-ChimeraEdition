@@ -1,0 +1,4 @@
+\n# Ignore environment files with secrets\n.env
+
+# Ignore environment variables
+.env

@@ -1,0 +1,13 @@
+
+# -----------------------------------------------------------------------------
+# Platform Manager Configurations
+# -----------------------------------------------------------------------------
+
+# Credentials for Bug Bounty Platform Integrations
+platforms:
+  hackerone:
+    # Your HackerOne API Identifier
+    api_user: "YOUR_H1_API_USER"
+    # Your HackerOne API Token
+    api_key: "YOUR_H1_API_KEY"
+
