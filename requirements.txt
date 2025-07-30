@@ -2,7 +2,7 @@ hvac
 psycopg2-binary
 pymongo
 requests
-dotenv
+python-dotenv
 bandit
 pytest
 flake8
@@ -11,6 +11,5 @@ matrix-nio
 crewai
 fastapi
 uvicorn
-
 rich
 sqlalchemy
