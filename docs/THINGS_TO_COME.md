@@ -1,3 +1,5 @@
+[2025-10-29] Initial n8n integration environment, proxy, and CI/CD test harness delivered: staged docker-compose, proxy/script configs, healthchecks, initial pytest testing, documentation, and secrets exclusion policy enforced.
+
 ## Things to Come Roadmap
 
 - n8n integration for workflow automation, notifications, and external orchestration
