@@ -2,3 +2,23 @@
 
 # Ignore environment variables
 .env
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.build/
+.pytest_cache/
+.mypy_cache/
+
+# Env & local configs
+.env
+.venv/
+venv/
+
+# Data caches
+/data/*.db
+/data/exploitdb/
+
+# OS
+.DS_Store
