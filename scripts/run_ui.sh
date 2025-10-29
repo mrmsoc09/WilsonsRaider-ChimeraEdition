@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-exec uvicorn core.ui.server:app --host 0.0.0.0 --port 8080
+cd "$(dirname "$0")/.."
+UVI="uvicorn"
+if [ -x "venv/bin/uvicorn" ]; then UVI="venv/bin/uvicorn"; fi
+exec "$UVI" app.main:app --host 0.0.0.0 --port 8080

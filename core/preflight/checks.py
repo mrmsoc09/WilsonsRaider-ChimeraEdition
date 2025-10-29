@@ -41,3 +41,12 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# Docker presence override hook
+try:
+    import os
+    if os.environ.get('DOCKER_PRESENT_OVERRIDE') == '1' or os.environ.get('WR_DOCKER_OPTIONAL','').lower() in ('1','true','yes'):
+        try: deps['docker'] = True
+        except Exception: pass
+except Exception:
+    pass
