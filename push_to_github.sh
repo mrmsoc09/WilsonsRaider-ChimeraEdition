@@ -21,7 +21,7 @@ git branch -M main
 
 # Add remote if not already added
 if ! git remote | grep origin > /dev/null; then
-  git remote add origin https://github.com/§§secret(GITHUB_USERNAME)/Predictive-Yield-Nexus.git
+  git remote add origin https://github.com/§§secret(mrmsoc09)/Predictive-Yield-Nexus.git
 fi
 
 # Push to GitHub
