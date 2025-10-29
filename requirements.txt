@@ -13,7 +13,9 @@ fastapi
 uvicorn
 rich
 sqlalchemy
-\n# Security and platform integrations
 hvac==1.2.1
 tenacity==8.5.0
 PyYAML==6.0.2
+fastapi==0.115.0
+uvicorn==0.30.6
+httpx==0.27.2
