@@ -13,7 +13,6 @@ fastapi
 uvicorn
 rich
 sqlalchemy
-hvac==1.2.1
 tenacity==8.5.0
 PyYAML==6.0.2
 fastapi==0.115.0
