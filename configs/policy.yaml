@@ -1,0 +1,17 @@
+opsec:
+  mode: low_and_slow
+  network_profile: whitelist
+  jitter_ms: [250, 2000]
+rate_limits:
+  default_qpm: 8
+  providers:
+    nvd: 3
+    exploitdb: 3
+    github: 2
+validation:
+  redundancy: false  # per user approval, redundant validation not required
+  profile: safe      # safe|normal|aggressive
+  tactics:
+    safe: ["nuclei_template"]
+    normal: ["nuclei_template", "metasploit_check"]
+    aggressive: ["nuclei_template", "metasploit_check", "custom_script"]

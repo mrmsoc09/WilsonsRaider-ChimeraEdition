@@ -1,0 +1,40 @@
+# -----------------------------------------------------------------------------
+# Global Application Configuration
+# -----------------------------------------------------------------------------
+
+# AI Model Configuration
+ai_models:
+  ollama_host: "http://localhost:11434"
+  default_fallback_model: "ollama/phi3:mini"
+  task_model_map:
+    default: "ollama/phi3:mini"
+    prioritization: "anthropic/claude-3-haiku-20240307"
+    template_generation: "openai/gpt-4o"
+    analysis: "google/gemini-1.5-pro-latest"
+    report_writing: "anthropic/claude-3-sonnet-20240229"
+    workflow_design: "deepseek/deepseek-chat"
+
+# Database Configuration
+database:
+  uri: "sqlite:///wilsons_raiders.db"
+
+# Paths Configuration
+paths:
+  exploit_library: "core/exploit_library"
+  programs_config: "config/programs.yaml" # Path to the static programs list
+  devices_config: "config/devices.yaml" # Path to Android devices config
+
+# External API Endpoints
+api_endpoints:
+  hackerone: "https://api.hackerone.com/v1"
+  bugcrowd: "https://api.bugcrowd.com/bounties" # Placeholder, needs actual API endpoint
+  intigriti: "https://api.intigriti.com/v1/programs" # Placeholder, needs actual API endpoint
+  nvd: "https://services.nvd.nist.gov/rest/json/cves/2.0"
+
+# -----------------------------------------------------------------------------
+# Platform Manager Configurations (Existing section, will be kept)
+# -----------------------------------------------------------------------------
+platforms:
+  hackerone:
+    api_user: "YOUR_H1_API_USER"
+    api_key: "YOUR_H1_API_KEY"

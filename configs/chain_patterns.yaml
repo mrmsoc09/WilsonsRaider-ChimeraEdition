@@ -1,0 +1,24 @@
+# Parameterized exploit chain patterns to guide planner
+patterns:
+  - id: takeover_secrets_ssrf_imds_rce
+    name: Subdomain Takeover -> Secrets -> SSRF -> Cloud IMDS -> Pivot -> RCE
+    requires: [subdomain, secrets, endpoints]
+    steps:
+      - detect_subdomain_takeover
+      - harvest_secrets
+      - probe_ssrf
+      - query_imds
+      - pivot_to_internal
+      - attempt_rce
+    benefit: high
+    likelihood: medium
+  - id: s3_public_listing_to_cred_leak_to_privesc
+    name: Open S3 Listing -> Credential Leak -> PrivEsc
+    requires: [cloud, secrets]
+    steps:
+      - list_buckets
+      - scan_bucket_objects
+      - extract_credentials
+      - privilege_escalation
+    benefit: high
+    likelihood: medium

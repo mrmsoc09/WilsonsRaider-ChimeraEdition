@@ -1,0 +1,110 @@
+# A curated list of top-tier bug bounty programs for strategic targeting.
+# This list serves as a static pool of high-value targets.
+# platform: The platform hosting the program (hackerone, bugcrowd, intigriti, or a self-hosted program name like 'google').
+# focus_areas: Keywords indicating the types of technologies and assets in scope.
+
+top_tier_programs:
+  - name: "Google Vulnerability Reward Program (VRP)"
+    handle: "google"
+    platform: "google"
+    url: "https://bughunters.google.com/"
+    focus_areas: ["web", "android", "chrome", "cloud", "gcp"]
+    max_payout: 31337
+
+  - name: "Microsoft Bug Bounty Program"
+    handle: "microsoft"
+    platform: "microsoft"
+    url: "https://www.microsoft.com/en-us/msrc/bounty"
+    focus_areas: ["cloud", "azure", "windows", "enterprise", "office365"]
+    max_payout: 100000
+
+  - name: "Apple Security Bounty"
+    handle: "apple"
+    platform: "apple"
+    url: "https://developer.apple.com/security-bounty/"
+    focus_areas: ["ios", "macos", "watchos", "icloud", "hardware"]
+    max_payout: 1000000
+
+  - name: "Meta Bug Bounty Program"
+    handle: "meta"
+    platform: "facebook"
+    url: "https://www.facebook.com/whitehat"
+    focus_areas: ["web", "instagram", "whatsapp", "oculus", "react"]
+    max_payout: 45000
+
+  - name: "Amazon Vulnerability Research Program"
+    handle: "amazon"
+    platform: "amazon"
+    url: "https://hackerone.com/amazonvrp"
+    focus_areas: ["aws", "cloud", "ecommerce", "alexa"]
+    max_payout: 25000
+
+  - name: "GitHub Security Bug Bounty"
+    handle: "github"
+    platform: "hackerone"
+    url: "https://bounty.github.com/"
+    focus_areas: ["web", "git", "actions", "enterprise", "devops"]
+    max_payout: 30000
+
+  - name: "GitLab Bug Bounty Program"
+    handle: "gitlab"
+    platform: "hackerone"
+    url: "https://hackerone.com/gitlab"
+    focus_areas: ["web", "git", "devops", "ci-cd", "ruby"]
+    max_payout: 20000
+
+  - name: "Netflix Bug Bounty Program"
+    handle: "netflix"
+    platform: "bugcrowd"
+    url: "https://bugcrowd.com/netflix"
+    focus_areas: ["web", "streaming", "aws", "cloud"]
+    max_payout: 20000
+
+  - name: "Tesla Bug Bounty Program"
+    handle: "tesla"
+    platform: "bugcrowd"
+    url: "https://bugcrowd.com/tesla"
+    focus_areas: ["web", "api", "vehicle", "iot", "hardware"]
+    max_payout: 15000
+
+  - name: "Uber Bug Bounty Program"
+    handle: "uber"
+    platform: "hackerone"
+    url: "https://hackerone.com/uber"
+    focus_areas: ["web", "mobile", "api", "logistics"]
+    max_payout: 50000
+
+  - name: "Shopify Bug Bounty Program"
+    handle: "shopify"
+    platform: "hackerone"
+    url: "https://hackerone.com/shopify"
+    focus_areas: ["web", "ecommerce", "api", "ruby", "react"]
+    max_payout: 50000
+
+  - name_en: "Valve Bug Bounty Program"
+    handle: "valve"
+    platform: "hackerone"
+    url: "https://hackerone.com/valve"
+    focus_areas: ["gaming", "steam", "source-engine", "web"]
+    max_payout: 7500
+
+  - name: "Intel Bug Bounty Program"
+    handle: "intel"
+    platform: "hackerone"
+    url: "https://hackerone.com/intel"
+    focus_areas: ["hardware", "firmware", "cpu", "bios", "sgx"]
+    max_payout: 100000
+
+  - name: "The Ethereum Foundation Bug Bounty Program"
+    handle: "ethereum"
+    platform: "ethereum"
+    url: "https://bounty.ethereum.org/"
+    focus_areas: ["blockchain", "crypto", "smart-contract", "solidity"]
+    max_payout: 250000
+
+  - name: "Binance Bug Bounty Program"
+    handle: "binance"
+    platform: "bugcrowd"
+    url: "https://bugcrowd.com/binance"
+    focus_areas: ["blockchain", "crypto", "exchange", "web", "api"]
+    max_payout: 10000

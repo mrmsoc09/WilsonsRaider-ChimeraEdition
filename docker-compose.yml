@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  orchestrator:
+    build: .
+    image: wilsons-raiders:latest
+    container_name: wr_orchestrator
+    restart: unless-stopped
+    user: "1001:1001"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 1.0
+    networks:
+      - wr_net
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - AUDIT_LOG_DIR=/tmp
+    volumes:
+      - ./data:/app/data:rw
+      - ./logs:/tmp:rw
+networks:
+  wr_net:
+    driver: bridge
