@@ -13,3 +13,7 @@ fastapi
 uvicorn
 rich
 sqlalchemy
+\n# Security and platform integrations
+hvac==1.2.1
+tenacity==8.5.0
+PyYAML==6.0.2
