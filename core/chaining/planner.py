@@ -2,9 +2,12 @@ from __future__ import annotations
 from typing import List, Dict, Any, Optional
 import math
 
+from core.learning.tracker import LearningTracker
+
 class ChainPlanner:
-    def __init__(self):
-        pass
+    def __init__(self, use_learning: bool = True):
+        self.use_learning = use_learning
+        self.lt = LearningTracker() if use_learning else None
 
     def suggest_next(self, artifacts: List[Dict[str, Any]], goals: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         # Stub heuristic: prioritize steps by expected value = likelihood * impact / cost
