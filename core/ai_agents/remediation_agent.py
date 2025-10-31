@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class RemediationAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Remediation Specialist',
-            goal='Provide actionable advice and steps to fix identified vulnerabilities.',
-            backstory='You are a helpful remediation expert who provides clear, concise, and practical guidance to developers and system administrators on how to patch security holes.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def suggest_remediation(self, vulnerability_info):
-        prompt = f"Based on the following vulnerability information, provide a detailed and actionable remediation plan:\n\n{vulnerability_info}"
-        return self.ai_manager._call_llm(prompt, system_prompt="You are a remediation and patching expert.", task_type='report_writing')
-
-=======
 """Remediation Agent - Automated Vulnerability Remediation
 
 Specialized agent for security vulnerability remediation:
@@ -83,4 +64,3 @@ class RemediationAgent:
             'patches': [],
             'recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

@@ -44,7 +44,7 @@ class CloudManager:
         # TODO: Implement API call to terminate the instance.
         return True
 
-    async def get_available_nodes(self) -> list:
+    def list_nodes(self) -> list:
         """Lists all active scanner nodes."""
         self.ui.print("[yellow]  -> Listing active cloud nodes... (Placeholder)[/yellow]")
         # TODO: Implement API call to list instances.
@@ -55,11 +55,4 @@ class CloudManager:
                 'status': 'running'
             }
         ]
-
-    async def execute_job_on_node(self, node_id: str, job: dict) -> dict:
-        """(Placeholder) Executes a job on a specific cloud node."""
-        self.ui.print(f"[yellow]  -> Executing job for '{job['target']}' on cloud node {node_id}... (Placeholder)[/yellow]")
-        # In a real implementation, this would involve SSHing into the node and running a script.
-        await asyncio.sleep(20) # Simulate job execution time
-        return {"status": "success", "stdout": "Cloud scan completed.", "stderr": ""}
 

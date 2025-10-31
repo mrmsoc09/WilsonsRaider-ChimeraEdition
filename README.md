@@ -1,5 +1,3 @@
-Below is the reconciled content for the README.md file after resolving the merge conflicts:
-
 # WilsonsRaider-ChimeraEdition
 
 **AI-Powered Autonomous Bug Bounty Hunting & Security Research Platform**
@@ -10,22 +8,9 @@ Below is the reconciled content for the README.md file after resolving the merge
 
 ## 🎯 Overview
 
-WilsonsRaider-ChimeraEdition is a next-generation autonomous security research platform combining advanced AI orchestration with battle-tested security tools. The framework enables security researchers to efficiently identify and exploit vulnerabilities.
+WilsonsRaider-ChimeraEdition is a next-generation autonomous security research platform combining advanced AI orchestration with battle-tested security tools. The framework enables security researchers to conduct comprehensive bug bounty operations at scale while maintaining strict OPSEC and compliance standards.
 
 ### Key Capabilities
-
-- **Self-Hosted AI Setup**
-  - Wilsons-Raiders uses a local, self-hosted small language model (SLM) for all AI operations to ensure privacy and security. External API calls have been removed, and all operations are locally hosted.
-  - **Installation Steps:**
-    1. **Install Ollama**: Follow the instructions at [https://ollama.com](https://ollama.com) to install Ollama on your system.
-    2. **Pull the Recommended Model**: The tool is optimized for small, fast models. The recommended model is `phi3:mini`.
-       ```bash
-       ollama pull phi3:mini
-       ```
-    3. **Run the Ollama Server**: In a separate terminal, run the Ollama server.
-       ```bash
-       ollama serve
-       ```
 
 - **🤖 Autonomous AI Orchestration**: Multi-agent coordination with adaptive LLM selection
 - **🔍 Comprehensive Reconnaissance**: Subdomain enumeration, port scanning, tech fingerprinting
@@ -40,39 +25,41 @@ WilsonsRaider-ChimeraEdition is a next-generation autonomous security research p
 
 ### High-Level Architecture
 
-
+```
 ┌─────────────────────────────────────────────────────────────────────┐
-│ WilsonsRaider-ChimeraEdition Framework │
-│ │
-│ ┌────────────────────────────────────────────────────────────┐ │
-│ │ Automation Orchestrator Agent (Core Intelligence) │ │
-│ │ • Multi-agent task coordination │ │
-│ │ • Adaptive LLM selection (GPT-3.5/4/4o) │ │
-│ │ • OPSEC enforcement & rate limiting │ │
-│ │ • Comprehensive audit trails │ │
-│ │ • Optional HiL checkpoints (non-mandatory) │ │
-│ └─────────────────┬────────────────────────────────────────────┘ │
-│ │ │
-│ ┌──────────┴──────────┐ │
-│ ▼ ▼ │
-│ ┌─────────────┐ ┌─────────────┐ │
-│ │ Recon │ │ Vuln Scan │ │
-│ │ Agent │ │ Agent │ │
-│ │ • Subfinder│ │ • Nuclei │ │
-│ │ • Amass │ │ • SQLMap │ │
-│ │ • Nmap │ │ • ffuf │ │
-│ └─────────────┘ └─────────────┘ │
-│ │ │ │
-│ └──────────┬──────────┘ │
-│ ▼ │
-│ ┌──────────────────────────────────────────┐ │
-│ │ Report Generation Agent │ │
-│ │ • Markdown/PDF/HTML generation │ │
-│ │ • Severity-based prioritization │ │
-│ │ • Jira/Slack integration │ │
-│ └──────────────────────────────────────────┘ │
+│              WilsonsRaider-ChimeraEdition Framework                 │
+│                                                                      │
+│  ┌────────────────────────────────────────────────────────────┐   │
+│  │     Automation Orchestrator Agent (Core Intelligence)       │   │
+│  │  • Multi-agent task coordination                            │   │
+│  │  • Adaptive LLM selection (GPT-3.5/4/4o)                   │   │
+│  │  • OPSEC enforcement & rate limiting                        │   │
+│  │  • Comprehensive audit trails                               │   │
+│  │  • Optional HiL checkpoints (non-mandatory)                 │   │
+│  └─────────────────┬────────────────────────────────────────────┘   │
+│                    │                                                 │
+│         ┌──────────┴──────────┐                                     │
+│         ▼                     ▼                                     │
+│  ┌─────────────┐      ┌─────────────┐                              │
+│  │  Recon      │      │ Vuln Scan   │                              │
+│  │  Agent      │      │ Agent       │                              │
+│  │  • Subfinder│      │ • Nuclei    │                              │
+│  │  • Amass    │      │ • SQLMap    │                              │
+│  │  • Nmap     │      │ • ffuf      │                              │
+│  └─────────────┘      └─────────────┘                              │
+│         │                     │                                     │
+│         └──────────┬──────────┘                                     │
+│                    ▼                                                 │
+│  ┌──────────────────────────────────────────┐                      │
+│  │       Report Generation Agent             │                      │
+│  │  • Markdown/PDF/HTML generation           │                      │
+│  │  • Severity-based prioritization          │                      │
+│  │  • Jira/Slack integration                 │                      │
+│  └──────────────────────────────────────────┘                      │
 └─────────────────────────────────────────────────────────────────────┘
+```
 
+---
 
 ## 🧠 Core Component: Automation Orchestrator Agent
 
@@ -107,29 +94,40 @@ The **`automation_orchestrator_agent.py`** is the central intelligence hub orche
    ├─ ThreatIntelAgent: CVE monitoring
    ├─ ReportGenerationAgent: Documentation
    └─ RemediationAgent: Fix generation
+```
 
-Key Implementation Features
-1. Input Validation & Security
+### Key Implementation Features
+
+#### 1. Input Validation & Security
+
+```python
 def _validate_task_input(self, data: Dict[str, Any]) -> Dict[str, Any]:
     """Prevents injection attacks, validates schema, sanitizes inputs"""
     # Allowlist-based validation
     if task_type not in self.VALID_TASK_TYPES:
         raise ValueError(f"Invalid task_type: {task_type}")
+    
     # String sanitization
     sanitized[key] = value.replace('\\x00', '').replace('\\r', '').strip()
     
     # OPSEC validation
     if opsec_level not in self.OPSEC_LEVELS:
         raise ValueError(f"Invalid opsec_level: {opsec_level}")
+```
 
-2. Adaptive Model Selection
+#### 2. Adaptive Model Selection
+
+```python
 COST_TIERS = {
     'economic': 'gpt-3.5-turbo',        # Fast, cost-effective
     'balanced': 'gpt-4',                 # Accuracy vs cost tradeoff
     'high-performance': 'gpt-4o'         # Maximum capability
 }
+```
 
-3. OPSEC Configuration
+#### 3. OPSEC Configuration
+
+```python
 OPSEC_LEVELS = {
     'low': {
         'rate_limit': 100,              # requests/min
@@ -142,15 +140,23 @@ OPSEC_LEVELS = {
         'user_agent_rotation': True
     }
 }
+```
 
-🚀 Quick Start
-Prerequisites
-Python 3.9+
-Docker & Docker Compose
-HashiCorp Vault
-PostgreSQL 13+
-Redis 6+
-Installation
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.9+
+- Docker & Docker Compose
+- HashiCorp Vault
+- PostgreSQL 13+
+- Redis 6+
+
+### Installation
+
+```bash
 # Clone repository
 git clone https://github.com/yourusername/WilsonsRaider-ChimeraEdition.git
 cd WilsonsRaider-ChimeraEdition
@@ -173,8 +179,11 @@ vault kv put secret/wilsons-raiders/creds \
 
 # Launch infrastructure
 docker-compose up -d
+```
 
-Basic Usage
+### Basic Usage
+
+```python
 from core.ai_agents.automation_orchestrator_agent import AutomationOrchestratorAgent
 
 # Initialize orchestrator
@@ -195,9 +204,15 @@ vuln_result = orchestrator.execute_task({
     'task_type': 'vulnerability_scan',
     'targets': recon_result['result']['subdomains']
 })
+```
 
-📋 Workflow Examples
-Automated Bug Bounty Hunt
+---
+
+## 📋 Workflow Examples
+
+### Automated Bug Bounty Hunt
+
+```python
 from workflows.bug_bounty_workflow import BugBountyWorkflow
 
 workflow = BugBountyWorkflow(
@@ -206,20 +221,28 @@ workflow = BugBountyWorkflow(
 )
 
 results = workflow.execute()
+```
 
-📚 Documentation
-User Guide
-Quick Start
-Configuration
-Workflows
-🔒 Security & OPSEC
-Use high OPSEC level for production
-Rotate user agents and IPs
-Implement rate limiting
-Maintain audit trails
-📄 License
+---
+
+## 📚 Documentation
+
+- [User Guide](docs/USER_GUIDE.md)
+- [Quick Start](docs/QUICKSTART.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Workflows](workflows/README.md)
+
+---
+
+## 🔒 Security & OPSEC
+
+- Use high OPSEC level for production
+- Rotate user agents and IPs
+- Implement rate limiting
+- Maintain audit trails
+
+---
+
+## 📄 License
 
 MIT License - see LICENSE for details.
-
-
-Ensure the above content is saved into your `README.md` file, replacing any conflicting lines. This will ensure a clean merge and accurate project presentation.

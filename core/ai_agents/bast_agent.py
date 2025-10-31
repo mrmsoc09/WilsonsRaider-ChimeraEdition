@@ -1,38 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class BASTAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Baseline Security Testing Agent',
-            goal='Analyze system configurations and hardening against security baselines.',
-            backstory='You are a specialized BAST agent, using tools like Lynis and OpenSCAP to audit system security posture.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def analyze_results(self, tool_output):
-        prompt = f"As a BAST analysis expert, summarize the key findings from this security baseline report:\n\n{tool_output}"
-        return self.ai_manager._call_llm(prompt, system_prompt="You are a security analysis expert.", task_type='analysis')
-
-    def run_scan(self, target):
-        from core.tools.lynis_wrapper import run_lynis
-        from core import ui
-
-        ui.print_info(f"BASTAgent starting Lynis scan for target context: {target}...")
-        # Note: The Lynis wrapper audits the local system where the agent is running.
-        results = run_lynis(target)
-
-        if not results or ('error' in results[0]):
-            error_message = results[0]['error'] if results and ('error' in results[0]) else "Unknown error"
-            ui.print_error(f"BASTAgent Lynis scan failed: {error_message}")
-            return {"status": "failed", "error": error_message}
-
-        ui.print_success(f"BASTAgent Lynis scan completed. Analyzing results...")
-        return self.analyze_results(results)
-
-=======
 """Binary/Backend Application Security Testing (BAST) Agent
 
 Specialized agent for binary and backend security analysis:
@@ -175,4 +140,3 @@ class BASTAgent:
             'exploits': [],
             'recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

@@ -5,13 +5,6 @@ Version: 2.0.0
 """
 
 import subprocess
-<<<<<<< HEAD
-import json
-from core import ui
-from core.managers.state_manager import StateManager
-from core.managers.ai_manager import AIManager
-from core.tools.google_dorks_wrapper import run_google_dorks
-=======
 import asyncio
 import logging
 from typing import Dict, Any, List, Set, Optional
@@ -19,21 +12,16 @@ from datetime import datetime
 import json
 
 logger = logging.getLogger(__name__)
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
 class ReconManager:
     """Manages reconnaissance operations and tool coordination."""
 
     def __init__(self, state_manager=None, ui_manager=None, config: dict = None):
         self.state_manager = state_manager
-<<<<<<< HEAD
-        self.ai_manager = AIManager()
-=======
         self.ui = ui_manager
         self.config = config or {}
         self.tools_available = self._check_tool_availability()
         logger.info(f"ReconManager initialized: {len(self.tools_available)} tools available")
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
     def _check_tool_availability(self) -> Dict[str, bool]:
         """Check which recon tools are installed."""
@@ -57,26 +45,6 @@ class ReconManager:
             'target': target,
             'assessment_id': assessment_id,
             'subdomains': [],
-<<<<<<< HEAD
-            'google_dorks_results': {} # New field
-        }
-
-        # Run Subfinder for subdomain enumeration
-        subdomains = self._run_subfinder(target)
-        if subdomains:
-            ui.print_success(f"Found {len(subdomains)} subdomains.")
-            asset_data = [{'name': sub, 'asset_type': 'subdomain'} for sub in subdomains]
-            self.state_manager.add_assets(assessment_id, asset_data)
-            recon_results['subdomains'] = subdomains
-
-        # Run Google Dorks
-        dorks_results = self._run_google_dorks(target)
-        if dorks_results and dorks_results.get('status') == 'success':
-            recon_results['google_dorks_results'] = dorks_results['results']
-            # TODO: Process and store dorks results as assets or findings
-
-        return recon_results
-=======
             'live_hosts': [],
             'open_ports': {},
             'technologies': [],
@@ -89,7 +57,6 @@ class ReconManager:
 
         # Phase 2: Live host detection
         results['live_hosts'] = await self._detect_live_hosts(results['subdomains'])
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
         # Phase 3: Port scanning
         results['open_ports'] = await self._scan_ports(results['live_hosts'])
@@ -140,90 +107,6 @@ class ReconManager:
         except Exception as e:
             logger.error(f"Subfinder error: {e}")
             return []
-<<<<<<< HEAD
-        except FileNotFoundError:
-            ui.print_warning("Subfinder command not found. Using hardcoded subdomain for testing.")
-            if target == "scanme.nmap.org":
-                return ["scanme.nmap.org"]
-            return []
-        except subprocess.TimeoutExpired:
-            ui.print_warning(f"Subfinder for {target} timed out.")
-            return []
-
-    def _run_google_dorks(self, target: str) -> dict:
-        """
-        Generates and runs Google Dorks for the target.
-        """
-        ui.print_info(f"Generating Google Dorks for {target}...")
-        
-        # Use AIManager to generate relevant dorks
-        dork_generation_prompt = f"""
-        You are an expert reconnaissance specialist. For the target domain '{target}', generate a list of 5-10 highly effective Google Dorks to find:
-        - Exposed login pages
-        - Sensitive files (e.g., .env, .bak, .sql, .git, .log)
-        - Admin panels
-        - Error messages
-        - Subdomains not found by traditional tools
-        - Publicly exposed documents (e.g., PDFs, DOCs)
-
-        Provide ONLY the list of dork strings, one per line, without any explanations or prefixes.
-        Example:
-        inurl:admin site:example.com
-        filetype:pdf site:example.com
-        intitle:"index of" site:example.com
-        """
-        generated_dorks_str = self.ai_manager._call_llm(
-            dork_generation_prompt, 
-            system_prompt="You are an expert in Google Dorking.", 
-            task_type='analysis'
-        )
-        
-        if not generated_dorks_str:
-            ui.print_error("AI failed to generate Google Dorks.")
-            return {"status": "failed", "error": "AI failed to generate dorks."}
-
-        generated_dorks = [d.strip() for d in generated_dorks_str.split('\n') if d.strip()]
-        if not generated_dorks:
-            ui.print_warning("AI generated an empty list of Google Dorks.")
-            return {"status": "failed", "error": "AI generated no dorks."}
-
-        return run_google_dorks(target, generated_dorks)
-
-    # Temporarily commented out due to httpx incompatibility
-    # def _run_httpx(self, subdomains: list) -> list:
-    #     """Runs httpx on a list of subdomains to find live web servers and their titles."""
-    #     ui.print_info(f"Running httpx on {len(subdomains)} subdomains to find live hosts...")
-    #     try:
-    #         subfinder_input = "\n".join(subdomains)
-    #         command = ['httpx', '-json', '-title', '-status-code']
-    #         result = subprocess.run(command, input=subfinder_input, check=True, capture_output=True, text=True, timeout=1800)
-            
-    #         live_hosts = []
-    #         for line in result.stdout.strip().split('\n'):
-    #             try:
-    #                 data = json.loads(line)
-    #                 host_info = {
-    #                     'name': data.get('url'),
-    #                     'asset_type': 'web_url',
-    #                     'hostname': data.get('host'),
-    #                     'port': data.get('port'),
-    #                     'protocol': data.get('scheme'),
-    #                     'is_alive': True
-    #                 }
-    #                 live_hosts.append(host_info)
-    #             except json.JSONDecodeError:
-    #                 continue
-    #         return live_hosts
-    #     except subprocess.CalledProcessError as e:
-    #         ui.print_error(f"httpx failed: {e.stderr}")
-    #         return []
-    #     except FileNotFoundError:
-    #         ui.print_error("httpx command not found. Please ensure it is installed and in your PATH.")
-    #         return []
-    #     except subprocess.TimeoutExpired:
-    #         ui.print_warning(f"httpx timed out.")
-    #         return []
-=======
 
     async def _run_amass(self, target: str) -> List[str]:
         """Run amass for subdomain enumeration."""
@@ -363,4 +246,3 @@ class ReconManager:
             'tools_available': sum(1 for v in self.tools_available.values() if v),
             'tools_total': len(self.tools_available)
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 """Job Manager - Distributed Task Orchestration and Cloud Fleet Management
 
 Manages job queuing, distribution, and cloud node orchestration.
@@ -7,80 +5,9 @@ Version: 2.0.0
 """
 
 import time
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 import asyncio
 import logging
 from collections import deque
-<<<<<<< HEAD
-from core import ui
-
-class JobManager:
-    """Manages a queue of jobs and distributes them to a heterogeneous fleet of nodes."""
-
-    def __init__(self, node_managers: list):
-        self.ui = ui
-        self.node_managers = node_managers
-        self.job_queue = deque()
-        self.active_jobs = {}
-        ui.print_info(f"JobManager initialized with {len(node_managers)} node manager(s).")
-
-    def add_job(self, job_details: dict):
-        """Adds a new job to the queue."""
-        job = {**job_details, 'status': 'queued'}
-        self.job_queue.append(job)
-        self.ui.print_info(f"Job added for target: {job.get('target')}. Queue size: {len(self.job_queue)}")
-
-    async def process_queue(self):
-        """The main loop to process jobs and distribute them to available nodes."""
-        self.ui.print_subheader("Job Manager starting... Processing queue.")
-        while self.job_queue:
-            idle_nodes = []
-            # Gather all available nodes from all managers
-            for manager in self.node_managers:
-                available_nodes = await manager.get_available_nodes()
-                for node in available_nodes:
-                    if node['id'] not in self.active_jobs:
-                        node['manager'] = manager  # Tag node with its manager
-                        idle_nodes.append(node)
-
-            if not idle_nodes:
-                await asyncio.sleep(10)
-                continue
-
-            # Assign jobs to idle nodes
-            while self.job_queue and idle_nodes:
-                job_to_run = self.job_queue.popleft()
-                node_to_use = idle_nodes.pop(0)
-                
-                node_id = node_to_use['id']
-                manager = node_to_use['manager']
-
-                self.active_jobs[node_id] = job_to_run
-                self.ui.print_success(f"Assigning job for '{job_to_run.get('target')}' to node '{node_id}'")
-                
-                # Run the job in the background
-                asyncio.create_task(self._run_job_and_handle_completion(manager, node_id, job_to_run))
-
-            await asyncio.sleep(5)
-        
-        self.ui.print_info("Job queue is empty. Active jobs will complete in the background.")
-
-    async def _run_job_and_handle_completion(self, manager, node_id, job):
-        """A wrapper to execute a job and manage its lifecycle."""
-        result = await manager.execute_job_on_node(node_id, job)
-        
-        if result.get('status') == 'success':
-            self.ui.print_success(f"Job for '{job.get('target')}' on node '{node_id}' completed.")
-            # TODO: Add logic to process successful job results (result['stdout'])
-        else:
-            self.ui.print_error(f"Job for '{job.get('target')}' on node '{node_id}' failed: {result.get('stderr')}")
-            # TODO: Add logic to handle failed jobs (e.g., re-queue)
-            
-        # Mark node as idle by removing the job
-        if node_id in self.active_jobs:
-            del self.active_jobs[node_id]
-
-=======
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from enum import Enum
@@ -306,4 +233,3 @@ class JobManager:
             'queued': len(self.job_queue),
             'active_nodes': len(self.active_nodes)
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

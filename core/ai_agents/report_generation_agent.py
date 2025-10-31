@@ -1,23 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-from typing import Dict, Any
-
-class ReportGenerationAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Security Report Writer',
-            goal='Generate high-quality, professional vulnerability reports in Markdown format.',
-            backstory='You are a skilled technical writer specializing in cybersecurity. You can take raw vulnerability data and transform it into a clear, comprehensive, and professional report suitable for submission.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def generate_report(self, finding_data: Dict[str, Any]) -> str:
-        prompt = f"Based on the following structured vulnerability data, write a high-quality vulnerability report in Markdown format. Include sections for Title, Severity, Target, Description, Impact, Steps to Reproduce, and Remediation.\n\nData:\n{finding_data}"
-        return self.ai_manager._call_llm(prompt, system_prompt="You are an expert security report writer.", task_type='report_writing')
-
-=======
 """Report Generation Agent - Automated Security Documentation
 
 Specialized agent for comprehensive security report generation:
@@ -163,4 +143,3 @@ class ReportGenerationAgent:
             'statistics': {},
             'recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

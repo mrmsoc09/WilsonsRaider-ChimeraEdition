@@ -1,49 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-from core.managers.bounty_program_manager import BountyProgramManager
-import asyncio
-
-class ProgramSelectorAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Strategic Bug Bounty Program Analyst',
-            goal='Analyze and select the most probable and profitable bug bounty programs to target.',
-            backstory='You are a world-class bug bounty hunter with a knack for finding high-impact vulnerabilities. You think strategically, prioritizing targets not just by payout, but by the likelihood of finding critical bugs based on program scope, age, and technology stack.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-        self.program_manager = BountyProgramManager()
-
-    def select_programs(self):
-        """Fetches all opportunities and uses the LLM to select the best ones."""
-        
-        # Get all opportunities from the program manager
-        opportunities = asyncio.run(self.program_manager.get_all_opportunities())
-
-        if not opportunities:
-            return "No bug bounty programs were found to analyze."
-
-        prompt = f"""
-        You are a world-class bug bounty hunter with a knack for finding high-impact vulnerabilities. Your goal is to select the most profitable and probable opportunities from the list below.
-
-        Your decision-making must be driven by two factors: **High Reward** and **High Probability of Finding Bugs**.
-
-        Analyze the following list of bug bounty programs. Consider these factors:
-        - **Payouts**: Are the maximum payouts high? This indicates the value the company places on security.
-        - **Scope**: Is the scope wide (e.g., wildcard domains *.example.com)? Wide scopes mean a larger, less-tested attack surface.
-        - **Technology**: Does the program use new, complex, or niche technologies that are more likely to be buggy?
-        - **Program Age/Updates**: Are the programs new or recently updated? These are often less hardened than older, more mature programs.
-
-        Here are the available opportunities:
-        {opportunities}
-
-        Based on your analysis, provide a ranked list of the top 3 programs to target. For each program, provide a 1-2 sentence justification explaining why it's a prime target based on the principles of high reward and high probability. Respond in a structured JSON format like this: {{'recommendations': [{{'program_name': '<name>', 'justification': '<your_reasoning>'}}]}}.
-        """
-        
-        return self.ai_manager._call_llm(prompt, system_prompt="You are a strategic bug bounty hunter.", task_type='prioritization')
-
-=======
 """Program Selector Agent
 
 Bug bounty program selection and prioritization agent specializing in:
@@ -234,4 +188,3 @@ class ProgramSelectorAgent:
             'competition_analysis': {},
             'strategic_recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

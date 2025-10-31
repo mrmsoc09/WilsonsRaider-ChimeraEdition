@@ -1,34 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.tools.mobsf_wrapper import run_mobsf
-from core.tools.objection_wrapper import run_objection_explore
-from core import ui
-
-class MASTAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Mobile Application Security Testing (MAST) Specialist',
-            goal='Perform static and dynamic analysis of mobile applications (APK/IPA) to find vulnerabilities.',
-            backstory='You are an expert in mobile security, skilled with tools like MobSF, Frida, and Objection to decompile, instrument, and analyze mobile app behavior.',
-            verbose=True
-        )
-        self.ui = ui
-
-    def run_static_analysis(self, apk_path):
-        return run_mobsf(apk_path)
-
-    def run_dynamic_analysis(self, apk_path):
-        return run_objection_explore(apk_path)
-
-    def analyze_hardware(self, device_id: str):
-        """
-        (Placeholder) Performs hardware-level analysis on a mobile device.
-        This would involve integrating with tools for firmware extraction,
-        USB sniffing, or other low-level device interactions.
-        """
-        self.ui.print_warning(f"MASTAgent: Hardware analysis for device {device_id} is a placeholder and not yet implemented.")
-        return {'status': 'Hardware analysis not yet implemented', 'device_id': device_id}
-=======
 """Mobile Application Security Testing (MAST) Agent
 
 Specialized agent for mobile application security analysis:
@@ -264,4 +233,3 @@ class MASTAgent:
 
         results['status'] = 'completed'
         return results
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

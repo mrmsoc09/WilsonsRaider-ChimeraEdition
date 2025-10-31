@@ -1,41 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class DASTAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Dynamic Application Security Testing Agent',
-            goal='Analyze web applications for vulnerabilities at runtime.',
-            backstory='You are a specialized DAST agent, using tools like ZAP and Arachni to find security flaws in live applications.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def analyze_results(self, tool_output):
-        """
-        Uses the AI manager to analyze DAST tool output.
-        """
-        prompt = f"You are a DAST analysis expert. Summarize the following tool output and identify the most critical findings:\n\n{tool_output}"
-        summary = self.ai_manager._call_llm(prompt, system_prompt="You are a security analysis expert.", task_type='analysis')
-        return summary
-
-    def run_scan(self, target):
-        from core.tools.zap_wrapper import run_zap
-        from core import ui
-
-        ui.print_info(f"DASTAgent starting ZAP scan on {target}...")
-        results = run_zap(target)
-
-        if not results or ('error' in results[0]):
-            error_message = results[0]['error'] if results and ('error' in results[0]) else "Unknown error"
-            ui.print_error(f"DASTAgent ZAP scan failed: {error_message}")
-            return {"status": "failed", "error": error_message}
-
-        ui.print_success(f"DASTAgent ZAP scan completed. Analyzing results...")
-        return self.analyze_results(results)
-
-=======
 """Dynamic Application Security Testing (DAST) Agent
 
 Specialized agent for dynamic web application security testing:
@@ -204,4 +166,3 @@ class DASTAgent:
             'risk_score': 0,
             'recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

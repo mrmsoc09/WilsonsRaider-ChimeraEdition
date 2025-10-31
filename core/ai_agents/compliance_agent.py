@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class ComplianceAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Compliance Assurance Agent',
-            goal='Ensure all findings and reports meet specified compliance standards (e.g., PCI-DSS, HIPAA).'
-            backstory='You are a meticulous compliance expert, ensuring that all security work adheres to the strictest regulatory and legal standards.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def check_compliance(self, report_data):
-        prompt = f"As a compliance expert, review the following report data and identify any potential compliance violations or areas for improvement:\n\n{report_data}"
-        return self.ai_manager._call_llm(prompt, system_prompt="You are a compliance analysis expert.", task_type='analysis')
-
-=======
 """Compliance Security Agent
 
 Regulatory compliance and security standards agent specializing in:
@@ -199,4 +180,3 @@ class ComplianceAgent:
             'audit_evidence': [],
             'risk_score': 0
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

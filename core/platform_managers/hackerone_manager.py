@@ -1,9 +1,11 @@
 import asyncio
 import httpx
-from core.config_manager import ConfigManager
+
 
 class HackerOneManager:
     """Manages all interactions with the HackerOne platform API."""
+
+    BASE_API_URL = "https://api.hackerone.com/v1"
 
     def __init__(self, api_user: str, api_key: str):
         """
@@ -13,9 +15,6 @@ class HackerOneManager:
             api_user (str): The HackerOne API Identifier.
             api_key (str): The HackerOne API Token.
         """
-        self.config = ConfigManager()
-        self.BASE_API_URL = self.config.get('api_endpoints.hackerone')
-
         if not api_user or not api_key:
             raise ValueError("HackerOne API user and key are required.")
         self.api_user = api_user

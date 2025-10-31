@@ -14,6 +14,4 @@ class TeamManager:
                 results[agent.__class__.__name__] = agent.run_defense(*args, **kwargs)
             elif hasattr(agent, 'coordinate'):
                 results[agent.__class__.__name__] = agent.coordinate(*args, **kwargs)
-            elif hasattr(agent, 'run_osint'):
-                results[agent.__class__.__name__] = agent.run_osint(*args, **kwargs)
         return results

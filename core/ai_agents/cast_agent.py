@@ -1,37 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class CASTAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Container Security Testing Agent',
-            goal='Analyze container images for known vulnerabilities.',
-            backstory='You are a specialized CAST agent, using tools like Trivy and Clair to find security flaws in container images.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def analyze_results(self, tool_output):
-        prompt = f"As a CAST analysis expert, summarize the key findings from this container scan report:\n\n{tool_output}"
-        return self.ai_manager._call_llm(prompt, system_prompt="You are a security analysis expert.", task_type='analysis')
-
-    def run_scan(self, target_image):
-        from core.tools.trivy_wrapper import run_trivy
-        from core import ui
-
-        ui.print_info(f"CASTAgent starting Trivy scan on {target_image}...")
-        results = run_trivy(target_image)
-
-        if not results or ('error' in results[0]):
-            error_message = results[0]['error'] if results and ('error' in results[0]) else "Unknown error"
-            ui.print_error(f"CASTAgent Trivy scan failed: {error_message}")
-            return {"status": "failed", "error": error_message}
-
-        ui.print_success(f"CASTAgent Trivy scan completed. Analyzing results...")
-        return self.analyze_results(results)
-
-=======
 """Container Application Security Testing (CAST) Agent
 
 Specialized agent for container and cloud-native security:
@@ -185,4 +151,3 @@ class CASTAgent:
             'compliance_violations': [],
             'recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

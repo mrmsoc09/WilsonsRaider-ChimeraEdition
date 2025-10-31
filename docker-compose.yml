@@ -11,6 +11,8 @@ services:
       - /tmp
     security_opt:
       - no-new-privileges:true
+      - seccomp:unconfined  # Replace with a custom seccomp profile for production
+      - apparmor:unconfined # Replace with a custom AppArmor profile for production
     mem_limit: 1g
     cpus: 1.0
     networks:

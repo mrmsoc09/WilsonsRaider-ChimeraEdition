@@ -1,38 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class SASTAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Static Application Security Testing Agent',
-            goal='Analyze source code for security vulnerabilities.',
-            backstory='You are a specialized SAST agent, using tools like Bandit and Semgrep to find security flaws in code before it is deployed.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def analyze_results(self, tool_output):
-        """
-        Uses the AI manager to analyze SAST tool output.
-        """
-        prompt = f"You are a SAST analysis expert. Summarize the following tool output and identify the most critical findings:\n\n{tool_output}"
-        summary = self.ai_manager._call_llm(prompt, system_prompt="You are a security analysis expert.", task_type='analysis')
-        return summary
-
-    def run_scan(self, target_path):
-        # Example: Run Bandit SAST scan
-        import subprocess, json
-        cmd = ['bandit', '-r', target_path, '-f', 'json']
-        proc = subprocess.run(cmd, capture_output=True, text=True)
-        try:
-            results = json.loads(proc.stdout)
-            return self.analyze_results(results)
-        except Exception:
-            results = {'error': proc.stderr}
-            return results
-
-=======
 """Static Application Security Testing (SAST) Agent
 
 Specialized agent for automated source code security analysis:
@@ -172,4 +137,3 @@ class SASTAgent:
             'dependencies': [],
             'recommendations': []
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

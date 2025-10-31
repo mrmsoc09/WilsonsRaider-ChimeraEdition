@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import subprocess
-from core import ui
-=======
 """Validation Manager - Finding Validation and False Positive Filtering
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
 Validates findings with confidence scoring and evidence collection.
 Version: 2.0.0
@@ -14,39 +9,6 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from enum import Enum
 
-<<<<<<< HEAD
-    def run(self, vulnerabilities: list) -> dict:
-        """Runs validation agents against a list of vulnerabilities."""
-        ui.print_header("Initiating Autonomous Validation")
-        validation_results = {'validated_findings': []}
-
-        if not vulnerabilities:
-            ui.print_info("No vulnerabilities to validate.")
-            return validation_results
-
-        for vuln in vulnerabilities:
-            # This is a placeholder for a more complex logic
-            # that would choose the right tool for the right vulnerability.
-            ui.print_info(f"Attempting to validate: {vuln.get('info', {}).get('name', 'N/A')}")
-            
-            # Example: Run PentestAgent for web vulnerabilities
-            # The actual implementation would be much more sophisticated.
-            try:
-                # This is a conceptual example of how one might run the agent.
-                # It assumes the agent has a CLI that can take a target.
-                target_url = vuln.get('host', '')
-                if target_url:
-                    ui.print_info(f"Running PentestAgent on {target_url}")
-                    # proc = subprocess.run(['python', 'main.py', '--url', target_url], cwd=self.pentest_agent_path, capture_output=True, text=True, check=True)
-                    # For this test, we will just simulate a success.
-                    ui.print_success("PentestAgent simulation complete.")
-                    validated_vuln = vuln
-                    validated_vuln['status'] = 'CONFIRMED'
-                    validation_results['validated_findings'].append(validated_vuln)
-
-            except Exception as e:
-                ui.print_danger(f"Validation with PentestAgent failed: {e}")
-=======
 logger = logging.getLogger(__name__)
 
 class ConfidenceLevel(Enum):
@@ -64,7 +26,6 @@ class ValidationStatus(Enum):
 
 class ValidationManager:
     """Manages finding validation and false positive filtering."""
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
     def __init__(self, state_manager=None, ui_manager=None, config: dict = None):
         self.state_manager = state_manager

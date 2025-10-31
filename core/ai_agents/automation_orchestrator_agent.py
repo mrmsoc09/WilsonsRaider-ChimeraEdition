@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-from crewai import Agent
-from core.managers.ai_manager import AIManager
-
-class AutomationOrchestratorAgent(Agent):
-    def __init__(self):
-        super().__init__(
-            role='Automation Workflow Orchestrator',
-            goal='Dynamically create and coordinate complex, multi-agent workflows based on high-level goals.',
-            backstory='You are a master strategist, capable of designing and orchestrating sequences of tasks for other AI agents to achieve a complex objective. You break down large goals into smaller, manageable steps.',
-            verbose=True
-        )
-        self.ai_manager = AIManager()
-
-    def design_workflow(self, high_level_goal: str):
-        prompt = f"Given the high-level security objective: '{high_level_goal}', design a step-by-step workflow that outlines which agents (e.g., Recon, SAST, DAST, Reporting) should be used and in what order. Present this as a numbered list."
-        return self.ai_manager._call_llm(prompt, system_prompt="You are a workflow design expert.", task_type='workflow_design')
-
-=======
 """Automation Orchestrator Agent - Core AI Orchestration Engine
 
 Central orchestration agent coordinating all AI-driven automation workflows.
@@ -364,4 +345,3 @@ class AutomationOrchestratorAgent:
             'avg_duration': round(total_dur / total, 2) if total > 0 else 0,
             'total_duration': round(total_dur, 2)
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4

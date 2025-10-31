@@ -1,6 +1,7 @@
 import yaml
 from pathlib import Path
-from core import ui
+from .ai_manager import AIManager
+from wr_ui import print_purple, print_danger, print_success
 
 class ForgeManager:
     """An AI-driven agent to forge custom scanning templates in real-time."""
@@ -19,12 +20,12 @@ class ForgeManager:
         Returns:
             Path | None: The path to the generated template file, or None if failed.
         """
-        ui.print_purple(f"The Forge: Invoking AI to craft a custom Nuclei template for '{template_name}'...")
+        print_purple(f"The Forge: Invoking AI to craft a custom Nuclei template for '{template_name}'...")
 
         template_content = self.ai.generate_dynamic_nuclei_template(recon_data)
 
         if not template_content:
-            ui.print_danger("The Forge: AI failed to generate a valid template.")
+            print_danger("The Forge: AI failed to generate a valid template.")
             return None
 
         try:
@@ -39,9 +40,9 @@ class ForgeManager:
             with open(template_path, 'w') as f:
                 f.write(template_content)
 
-            ui.print_success(f"The Forge: Successfully forged new template: {template_path}")
+            print_success(f"The Forge: Successfully forged new template: {template_path}")
             return template_path
 
         except (yaml.YAMLError, IOError) as e:
-            ui.print_danger(f"The Forge: Error processing generated template: {e}")
+            print_danger(f"The Forge: Error processing generated template: {e}")
             return None

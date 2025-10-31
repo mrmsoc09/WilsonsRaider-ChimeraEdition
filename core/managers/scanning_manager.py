@@ -8,10 +8,6 @@ import os
 import subprocess
 import tempfile
 import json
-<<<<<<< HEAD
-from core import ui
-from core.managers.state_manager import StateManager, Asset
-=======
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
@@ -19,7 +15,6 @@ from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
 class ScanningManager:
     """Manages vulnerability scanning operations."""
@@ -53,18 +48,12 @@ class ScanningManager:
         if self.ui:
             self.ui.run_subheading(f"Vulnerability Scanning: Assessment {assessment_id}")
 
-<<<<<<< HEAD
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp_file:
-            tmp_file.write('\n'.join(prioritized_assets))
-            temp_list_path = tmp_file.name
-=======
         results = {
             'assessment_id': assessment_id,
             'scans_completed': [],
             'findings': [],
             'timestamp': datetime.utcnow().isoformat()
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
 
         # Run Nuclei
         if self.tools_available.get('nuclei'):
@@ -72,78 +61,6 @@ class ScanningManager:
             results['scans_completed'].append('nuclei')
             results['findings'].extend(nuclei_results)
 
-<<<<<<< HEAD
-        if not prioritized_templates:
-            ui.print_warning("AI prioritization failed or returned no templates. Falling back to default CVE scan.")
-            command = ['nuclei', '-l', temp_list_path, '-t', 'cves/', '-jsonl', '-o', output_file]
-        else:
-            command = ['nuclei', '-l', temp_list_path, '-t', ', '.join(prioritized_templates), '-jsonl', '-o', output_file]
-
-import os
-import subprocess
-import tempfile
-import json
-from core import ui
-from core.managers.state_manager import StateManager, Asset
-from core.tools.ars0n_wrapper import run_ars0n_scan
-
-class ScanningManager:
-    def __init__(self, state_manager: StateManager):
-        self.state_manager = state_manager
-        ui.print_info("ScanningManager initialized.")
-
-    def run(self, assessment_id: int, prioritized_assets: list, prioritized_templates: list):
-        ui.print_header(f"Initiating Active Scans on Assessment ID: {assessment_id}")
-        
-        # Run Nuclei scan
-        self._run_nuclei(assessment_id, prioritized_assets, prioritized_templates)
-
-        # Run ars0n-framework-v2 scan
-        # For now, ars0n-framework-v2 will run on the first prioritized asset as a full scan.
-        # This can be made more sophisticated later.
-        if prioritized_assets:
-            self._run_ars0n_framework_scan(assessment_id, prioritized_assets[0])
-
-    def _run_nuclei(self, assessment_id: int, prioritized_assets: list, prioritized_templates: list):
-        ui.print_info("Running Nuclei scan...")
-
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp_file:
-            tmp_file.write('\n'.join(prioritized_assets))
-            temp_list_path = tmp_file.name
-
-        output_file = os.path.join(tempfile.gettempdir(), f"nuclei_results_{assessment_id}.json")
-
-        if not prioritized_templates:
-            ui.print_warning("AI prioritization failed or returned no templates. Falling back to default CVE scan.")
-            command = ['nuclei', '-l', temp_list_path, '-t', 'cves/', '-jsonl', '-o', output_file]
-        else:
-            command = ['nuclei', '-l', temp_list_path, '-t', ', '.join(prioritized_templates), '-jsonl', '-o', output_file]
-
-        try:
-            subprocess.run(command, check=True, capture_output=True, text=True, timeout=1800)
-            ui.print_success("Nuclei scan completed.")
-            self._process_nuclei_results(assessment_id, output_file)
-        except subprocess.CalledProcessError as e:
-            ui.print_warning(f"Nuclei scan finished. Processing results.")
-            self._process_nuclei_results(assessment_id, output_file)
-        except FileNotFoundError:
-            ui.print_warning("Nuclei command not found. Skipping scan.")
-            with open(output_file, 'w') as f:
-                f.write('')
-            self._process_nuclei_results(assessment_id, output_file)
-        finally:
-            if os.path.exists(temp_list_path):
-                os.remove(temp_list_path)
-            if os.path.exists(output_file):
-                os.remove(output_file)
-
-    def _process_nuclei_results(self, assessment_id: int, output_file: str):
-        if not os.path.exists(output_file):
-            ui.print_warning("Nuclei output file not found. No results to process.")
-            return
-
-        session = self.state_manager.get_session()
-=======
         # Run Nikto for web servers
         if self.tools_available.get('nikto'):
             nikto_results = await self._run_nikto(assessment_id, prioritized_assets)
@@ -220,98 +137,10 @@ class ScanningManager:
         if not output_file.exists():
             return findings
 
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
         try:
             with open(output_file, 'r') as f:
                 for line in f:
                     try:
-<<<<<<< HEAD
-                        finding = json.loads(line)
-                        host = finding.get('host')
-                        if not host:
-                            continue
-
-                        vuln_data = {
-                            'name': finding.get('info', {}).get('name'),
-                            'severity': finding.get('info', {}).get('severity'),
-                            'description': finding.get('info', {}).get('description'),
-                            'raw_finding': json.dumps(finding),
-                            'tool': 'nuclei'
-                        }
-                        
-                        self.state_manager.add_vulnerability(
-                            assessment_id=assessment_id,
-                            asset_id=asset.id,
-                            vuln_data=vuln_data
-                        )
-                    except json.JSONDecodeError:
-                        continue
-            ui.print_info("Processed and saved Nuclei findings to the database.")
-        finally:
-            session.close()
-
-    def _run_ars0n_framework_scan(self, assessment_id: int, target_asset: str):
-        """
-        Runs ars0n-framework-v2 scan on a given target asset.
-        """
-        ui.print_info(f"Running ars0n-framework-v2 scan on {target_asset}...")
-        ars0n_results = run_ars0n_scan(target_asset, scan_type='full')
-
-        if ars0n_results.get('status') == 'success':
-            ui.print_success(f"ars0n-framework-v2 scan completed for {target_asset}.")
-            self._process_ars0n_results(assessment_id, target_asset, ars0n_results.get('results'))
-        else:
-            ui.print_error(f"ars0n-framework-v2 scan failed for {target_asset}: {ars0n_results.get('message', 'Unknown error')}")
-
-    def _process_ars0n_results(self, assessment_id: int, target_asset_name: str, results: dict | str):
-        """
-        Processes results from ars0n-framework-v2 and saves them to the database.
-        """
-        if not results:
-            ui.print_warning(f"No ars0n-framework-v2 results to process for {target_asset_name}.")
-            return
-
-        session = self.state_manager.get_session()
-        try:
-            asset = session.query(Asset).filter_by(assessment_id=assessment_id, name=target_asset_name).first()
-            if not asset:
-                ui.print_warning(f"Could not find asset for host: {target_asset_name}. Skipping ars0n findings.")
-                return
-
-            if isinstance(results, dict) and results.get('vulnerabilities'):
-                for vuln_entry in results['vulnerabilities']:
-                    vuln_data = {
-                        'name': vuln_entry.get('name', 'Ars0n Framework Finding'),
-                        'severity': vuln_entry.get('severity', 'unknown'),
-                        'description': vuln_entry.get('description', 'No description provided.'),
-                        'raw_finding': json.dumps(vuln_entry),
-                        'tool': 'ars0n-framework-v2'
-                    }
-                    self.state_manager.add_vulnerability(
-                        assessment_id=assessment_id,
-                        asset_id=asset.id,
-                        vuln_data=vuln_data
-                    )
-                ui.print_info(f"Processed and saved {len(results['vulnerabilities'])} ars0n-framework-v2 findings to the database.")
-            elif isinstance(results, str):
-                ui.print_info(f"Ars0n-framework-v2 returned raw string output. Saving as a single finding.")
-                vuln_data = {
-                    'name': 'Ars0n Framework Raw Output',
-                    'severity': 'info',
-                    'description': 'Raw output from ars0n-framework-v2 scan.',
-                    'raw_finding': results,
-                    'tool': 'ars0n-framework-v2'
-                }
-                self.state_manager.add_vulnerability(
-                    assessment_id=assessment_id,
-                    asset_id=asset.id,
-                    vuln_data=vuln_data
-                )
-            else:
-                ui.print_warning(f"Unknown ars0n-framework-v2 result format for {target_asset_name}.")
-        finally:
-            session.close()
-=======
                         result = json.loads(line)
                         finding = {
                             'assessment_id': assessment_id,
@@ -408,4 +237,3 @@ class ScanningManager:
             'severity_breakdown': severity_counts,
             'tools_available': sum(1 for v in self.tools_available.values() if v)
         }
->>>>>>> a6084cc3ed82e7829e4008fdba7650ce580d27d4
