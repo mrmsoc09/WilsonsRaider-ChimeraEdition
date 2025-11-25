@@ -1,0 +1,149 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wilsons-raider
+  namespace: wilsons-raider
+  labels:
+    app: wilsons-raider
+    component: core
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: wilsons-raider
+    component: core
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: wilsons-raider
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: wilsons-raider
+  labels:
+    app: redis
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    app: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: wilsons-raider
+  labels:
+    app: vault
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8200
+      targetPort: 8200
+      protocol: TCP
+      name: http
+  selector:
+    app: vault
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thehive
+  namespace: wilsons-raider
+  labels:
+    app: thehive
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+      name: http
+  selector:
+    app: thehive
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cortex
+  namespace: wilsons-raider
+  labels:
+    app: cortex
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9001
+      targetPort: 9001
+      protocol: TCP
+      name: http
+  selector:
+    app: cortex
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shuffle
+  namespace: wilsons-raider
+  labels:
+    app: shuffle
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+    - port: 3443
+      targetPort: 3443
+      protocol: TCP
+      name: https
+  selector:
+    app: shuffle
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wazuh-manager
+  namespace: wilsons-raider
+  labels:
+    app: wazuh-manager
+spec:
+  type: ClusterIP
+  ports:
+    - port: 55000
+      targetPort: 55000
+      protocol: TCP
+      name: api
+    - port: 1514
+      targetPort: 1514
+      protocol: TCP
+      name: registration
+    - port: 1515
+      targetPort: 1515
+      protocol: TCP
+      name: cluster
+  selector:
+    app: wazuh-manager

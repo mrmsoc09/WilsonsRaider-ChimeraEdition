@@ -1,0 +1,227 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wilsons-raider
+  namespace: wilsons-raider
+  labels:
+    app: wilsons-raider
+    component: core
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: wilsons-raider
+      component: core
+  template:
+    metadata:
+      labels:
+        app: wilsons-raider
+        component: core
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: wilsons-raider
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+
+      initContainers:
+        # Wait for PostgreSQL
+        - name: wait-for-postgres
+          image: busybox:latest
+          command: ['sh', '-c', 'until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done;']
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+        # Wait for Redis
+        - name: wait-for-redis
+          image: busybox:latest
+          command: ['sh', '-c', 'until nc -z redis 6379; do echo waiting for redis; sleep 2; done;']
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+      containers:
+        - name: wilsons-raider
+          image: wilsons-raider:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+
+          env:
+            # Database
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: "wilsons_raider"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: postgres-password
+
+            # Redis
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+
+            # Vault
+            - name: VAULT_ADDR
+              value: "http://vault:8200"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: vault-token
+
+            # TheHive
+            - name: THEHIVE_URL
+              value: "http://thehive:9000"
+            - name: THEHIVE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: thehive-api-key
+
+            # Wazuh
+            - name: WAZUH_API_URL
+              value: "https://wazuh-manager:55000"
+            - name: WAZUH_USERNAME
+              value: "admin"
+            - name: WAZUH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: wazuh-password
+
+            # Shuffle
+            - name: SHUFFLE_URL
+              value: "https://shuffle:3001"
+            - name: SHUFFLE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: shuffle-api-key
+
+            # Cortex
+            - name: CORTEX_URL
+              value: "http://cortex:9001"
+            - name: CORTEX_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: cortex-api-key
+
+            # n8n
+            - name: N8N_BASE_URL
+              value: "http://n8n:5678"
+            - name: N8N_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: n8n-api-key
+
+            # OpenAI
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: wilsons-raider-secrets
+                  key: openai-api-key
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: reports
+              mountPath: /app/reports
+            - name: logs
+              mountPath: /app/logs
+            - name: temp
+              mountPath: /tmp
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_RAW  # For nmap
+                - NET_ADMIN  # For network scanning
+
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: wilsons-raider-data
+        - name: reports
+          persistentVolumeClaim:
+            claimName: wilsons-raider-reports
+        - name: logs
+          emptyDir: {}
+        - name: temp
+          emptyDir: {}
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - wilsons-raider
+                topologyKey: kubernetes.io/hostname

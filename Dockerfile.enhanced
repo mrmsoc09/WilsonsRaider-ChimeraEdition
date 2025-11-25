@@ -1,0 +1,124 @@
+# Multi-stage Dockerfile for WilsonsRaider-ChimeraEdition
+# Production-grade containerization with security hardening
+
+# Stage 1: Builder - Install dependencies and compile if needed
+FROM python:3.12-slim as builder
+
+# Set working directory
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    make \
+    libpq-dev \
+    libssl-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+
+# Stage 2: Security Tools - Install security scanning tools
+FROM python:3.12-slim as tools
+
+WORKDIR /tools
+
+# Install system dependencies for security tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    curl \
+    git \
+    unzip \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Nuclei
+RUN wget -q https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei_3.1.0_linux_amd64.zip \
+    && unzip nuclei_3.1.0_linux_amd64.zip \
+    && mv nuclei /usr/local/bin/ \
+    && rm nuclei_3.1.0_linux_amd64.zip
+
+# Install subfinder
+RUN wget -q https://github.com/projectdiscovery/subfinder/releases/latest/download/subfinder_2.6.3_linux_amd64.zip \
+    && unzip subfinder_2.6.3_linux_amd64.zip \
+    && mv subfinder /usr/local/bin/ \
+    && rm subfinder_2.6.3_linux_amd64.zip
+
+# Install httpx
+RUN wget -q https://github.com/projectdiscovery/httpx/releases/latest/download/httpx_1.3.7_linux_amd64.zip \
+    && unzip httpx_1.3.7_linux_amd64.zip \
+    && mv httpx /usr/local/bin/ \
+    && rm httpx_1.3.7_linux_amd64.zip
+
+# Install nmap
+RUN apt-get update && apt-get install -y --no-install-recommends nmap \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Stage 3: Runtime - Final production image
+FROM python:3.12-slim
+
+# Metadata
+LABEL maintainer="WilsonsRaider Security Team"
+LABEL description="AI-Powered Autonomous Bug Bounty Hunting Platform"
+LABEL version="1.0.0"
+
+# Security: Create non-root user
+RUN groupadd -r wilsons && useradd -r -g wilsons -u 1001 wilsons
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libssl3 \
+    nmap \
+    ca-certificates \
+    curl \
+    tini \
+    gosu \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy Python dependencies from builder
+COPY --from=builder /root/.local /home/wilsons/.local
+
+# Copy security tools from tools stage
+COPY --from=tools /usr/local/bin/nuclei /usr/local/bin/
+COPY --from=tools /usr/local/bin/subfinder /usr/local/bin/
+COPY --from=tools /usr/local/bin/httpx /usr/local/bin/
+
+# Copy application code
+COPY --chown=wilsons:wilsons . /app
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/reports /app/temp \
+    && chown -R wilsons:wilsons /app
+
+# Set environment variables
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PATH=/home/wilsons/.local/bin:$PATH \
+    HOME=/home/wilsons
+
+# Security: Run as non-root user
+USER wilsons
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/api/health || exit 1
+
+# Expose ports
+EXPOSE 8000
+
+# Set entrypoint with tini for signal handling
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+# Default command
+CMD ["python", "-m", "uvicorn", "core.ui.dashboard_api:app", "--host", "0.0.0.0", "--port", "8000"]

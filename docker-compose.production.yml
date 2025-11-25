@@ -1,0 +1,314 @@
+version: '3.8'
+
+services:
+  # WilsonsRaider Core Application
+  wilsons-raider:
+    build:
+      context: .
+      dockerfile: Dockerfile.enhanced
+    image: wilsons-raider:latest
+    container_name: wilsons-raider-core
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Database
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=wilsons_raider
+      - POSTGRES_USER=wilsons
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+      # Vault
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+
+      # TheHive
+      - THEHIVE_URL=http://thehive:9000
+      - THEHIVE_API_KEY=${THEHIVE_API_KEY}
+
+      # Wazuh
+      - WAZUH_API_URL=https://wazuh-manager:55000
+      - WAZUH_USERNAME=${WAZUH_USERNAME:-admin}
+      - WAZUH_PASSWORD=${WAZUH_PASSWORD}
+
+      # Shuffle
+      - SHUFFLE_URL=https://shuffle:3001
+      - SHUFFLE_API_KEY=${SHUFFLE_API_KEY}
+
+      # Cortex
+      - CORTEX_URL=http://cortex:9001
+      - CORTEX_API_KEY=${CORTEX_API_KEY}
+
+      # n8n
+      - N8N_BASE_URL=http://n8n:5678
+      - N8N_API_KEY=${N8N_API_KEY}
+
+      # OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./data:/app/data
+
+    depends_on:
+      - postgres
+      - redis
+      - vault
+
+    networks:
+      - wilsons-network
+
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_RAW  # For nmap
+      - NET_ADMIN  # For network scanning
+    mem_limit: 2g
+    cpus: 2.0
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: wilsons-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=wilsons_raider
+      - POSTGRES_USER=wilsons
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - wilsons-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wilsons"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: wilsons-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - wilsons-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # HashiCorp Vault
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: wilsons-vault
+    restart: unless-stopped
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN:-dev-token}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/file
+    networks:
+      - wilsons-network
+    command: server -dev
+
+  # TheHive - Incident Response Platform
+  thehive:
+    image: strangebee/thehive:5.2
+    container_name: wilsons-thehive
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - JVM_OPTS="-Xms1024M -Xmx1024M"
+    volumes:
+      - thehive-data:/opt/thehive/data
+      - thehive-index:/opt/thehive/index
+    depends_on:
+      - cassandra
+      - elasticsearch
+    networks:
+      - wilsons-network
+
+  # Cassandra (TheHive backend)
+  cassandra:
+    image: cassandra:4.1
+    container_name: wilsons-cassandra
+    restart: unless-stopped
+    environment:
+      - CASSANDRA_CLUSTER_NAME=thehive
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    networks:
+      - wilsons-network
+
+  # Elasticsearch (TheHive index)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: wilsons-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - wilsons-network
+
+  # Cortex - Observable Analysis Platform
+  cortex:
+    image: thehiveproject/cortex:3.1.7
+    container_name: wilsons-cortex
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    environment:
+      - JVM_OPTS="-Xms512M -Xmx512M"
+    volumes:
+      - cortex-data:/opt/cortex/data
+    depends_on:
+      - elasticsearch
+    networks:
+      - wilsons-network
+
+  # Shuffle - SOAR Platform
+  shuffle:
+    image: ghcr.io/shuffle/shuffle-backend:latest
+    container_name: wilsons-shuffle
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+      - "3443:3443"
+    environment:
+      - SHUFFLE_OPENSEARCH_URL=http://opensearch:9200
+      - SHUFFLE_ELASTIC=true
+    volumes:
+      - shuffle-data:/shuffle-database
+    depends_on:
+      - opensearch
+    networks:
+      - wilsons-network
+
+  # OpenSearch (Shuffle backend)
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: wilsons-opensearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    networks:
+      - wilsons-network
+
+  # n8n - Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: wilsons-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - wilsons-network
+
+  # Wazuh Manager - SIEM
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.7.0
+    container_name: wilsons-wazuh-manager
+    restart: unless-stopped
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "514:514/udp"
+      - "55000:55000"
+    environment:
+      - INDEXER_URL=https://wazuh-indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=${WAZUH_INDEXER_PASSWORD:-SecretPassword}
+      - FILEBEAT_SSL_VERIFICATION_MODE=none
+    volumes:
+      - wazuh-manager-data:/var/ossec/data
+      - wazuh-manager-logs:/var/ossec/logs
+    networks:
+      - wilsons-network
+
+  # Wazuh Indexer (OpenSearch)
+  wazuh-indexer:
+    image: wazuh/wazuh-indexer:4.7.0
+    container_name: wilsons-wazuh-indexer
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    volumes:
+      - wazuh-indexer-data:/var/lib/wazuh-indexer
+    networks:
+      - wilsons-network
+
+  # Wazuh Dashboard
+  wazuh-dashboard:
+    image: wazuh/wazuh-dashboard:4.7.0
+    container_name: wilsons-wazuh-dashboard
+    restart: unless-stopped
+    ports:
+      - "443:5601"
+    environment:
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=${WAZUH_INDEXER_PASSWORD:-SecretPassword}
+      - WAZUH_API_URL=https://wazuh-manager
+      - API_USERNAME=${WAZUH_USERNAME:-admin}
+      - API_PASSWORD=${WAZUH_PASSWORD}
+    depends_on:
+      - wazuh-indexer
+    networks:
+      - wilsons-network
+
+networks:
+  wilsons-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  vault-data:
+  thehive-data:
+  thehive-index:
+  cassandra-data:
+  es-data:
+  cortex-data:
+  shuffle-data:
+  opensearch-data:
+  n8n-data:
+  wazuh-manager-data:
+  wazuh-manager-logs:
+  wazuh-indexer-data:
