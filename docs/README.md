@@ -8,6 +8,7 @@ Welcome to the documentation for Wilsons-Raiders. This guide provides comprehens
 *   [Quickstart Guide](QUICKSTART.md)
 *   [User Guide](USER_GUIDE.md)
 *   [Configuration](CONFIGURATION.md)
+*   [OSINT Guide](OSINT_GUIDE.md)
 *   [Frequently Asked Questions](FAQ.md)
 
 ### Development & Contribution

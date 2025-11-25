@@ -298,7 +298,7 @@ osint = OSINTAggregator(output_dir="/tmp/osint")
 report = osint.comprehensive_recon("example.com")
 
 # The aggregator runs:
-# - Google Dorking (10 categories)
+# - Google Dorking (100 categories)
 # - Certificate Transparency (crt.sh)
 # - DNS/WHOIS lookups
 # - Subdomain enumeration (Amass)
